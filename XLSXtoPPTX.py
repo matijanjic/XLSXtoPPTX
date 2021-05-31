@@ -34,7 +34,7 @@ def main():
     ws = wb.active
 
     # counter to iterate over all the rows in the workbook
-    for row in range(8,281):
+    for row in range(8,10):
 
         # this part of the program creates a slide configuration based on what is needed on the slide
         slide = prs.slides.add_slide(slide_layout)
@@ -107,7 +107,7 @@ def main():
                 slide.shapes.add_picture("images\pictures_learning\\" + sentencePicture, picLeft, Inches(1.5), picHeight)
 
     # presentation is saved.
-    prs.save("learning pictures.pptx")
+    prs.save("bla.pptx")
 
 if __name__ == '__main__':
     main()
