@@ -19,10 +19,12 @@ class SlideShow:
         self.layoutNumber = layoutNumber
         self.ss = Presentation(layoutFile)
         self.slideLayout = self.ss.slide_layouts[layoutNumber]
-        
+
+    # adds a slide
     def addSlide(self):
         self.slide = self.ss.slides.add_slide(self.slideLayout)
-    
+
+    # adds a text object on the slide
     def addText(self, fontSize, text, left, top, width, height):
         txBox = self.slide.shapes.add_textbox(left, top, width, height)
         tf = txBox.text_frame
@@ -30,18 +32,25 @@ class SlideShow:
         p.text = text
         p.font.size = Pt(fontSize)
 
-    def addPicture(self, imgFile, left, top, imgLongestSide):
+    # add a picture on the slide
+    def addPicture(self, imgFile, left, top):
         
         img = Image.open(imgFile)
         width, height = img.size
-        if height >= width:
-            imgLongestSide = imgLongestSide
+
+        # center the picture if needed
+        slide_size = (16, 9)
+        self.ss.slide_width, self.ss.slide_height = Inches(slide_size[0]), Inches(slide_size[1])
+        if left == "center" and top == "center":
+            left = Inches(slide_size[0] - (width / img.info['dpi'][0])) / 2
+            top = Inches(slide_size[1] - (height / img.info['dpi'][1])) / 2
+            self.slide.shapes.add_picture(imgFile, left, top)
+            
+        # else position it depending on the left and top variable
         else:
-            imgLongestSide = (width / height) * imgLongestSide
-        self.slide.shapes.add_picture(imgFile, left, top, imgLongestSide)
-        
+            self.slide.shapes.add_picture(imgFile, Inches(left), Inches(top))
 
-
+    # saves the pptx file
     def save(self, saveFile):
         self.ss.save(saveFile)
 
@@ -52,6 +61,7 @@ def main():
     slideShow.addText(50, 'sample text', Inches(1), Inches(1), Inches(1), Inches(1))
     slideShow.addSlide()
     slideShow.addText(50, 'another text', Inches(1), Inches(1), Inches(1), Inches(1))
+    slideShow.addPicture('bird flap wings.jpg', "center", "center", 2)
     slideShow.save('testOOP.pptx')
 
 
