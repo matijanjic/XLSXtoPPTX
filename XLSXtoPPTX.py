@@ -12,13 +12,54 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter
 from PIL import Image
 
+class SlideShow:
+    
+    def __init__(self, layoutFile, layoutNumber):
+        self.layoutFile = layoutFile
+        self.layoutNumber = layoutNumber
+        self.ss = Presentation(layoutFile)
+        self.slideLayout = self.ss.slide_layouts[layoutNumber]
+        
+    def addSlide(self):
+        self.slide = self.ss.slides.add_slide(self.slideLayout)
+    
+    def addText(self, fontSize, text, left, top, width, height):
+        txBox = self.slide.shapes.add_textbox(left, top, width, height)
+        tf = txBox.text_frame
+        p=tf.add_paragraph()
+        p.text = text
+        p.font.size = Pt(fontSize)
+
+    def addPicture(self, imgFile, left, top, imgLongestSide):
+        
+        img = Image.open(imgFile)
+        width, height = img.size
+        if height >= width:
+            imgLongestSide = imgLongestSide
+        else:
+            imgLongestSide = (width / height) * imgLongestSide
+        self.slide.shapes.add_picture(imgFile, left, top, imgLongestSide)
+        
+
+
+    def save(self, saveFile):
+        self.ss.save(saveFile)
+
 def main():
 
-    # import presentation layout as prs
-    prs = Presentation('16x9.pptx')
+    slideShow = SlideShow('16x9.pptx', 6)
+    slideShow.addSlide()
+    slideShow.addText(50, 'sample text', Inches(1), Inches(1), Inches(1), Inches(1))
+    slideShow.addSlide()
+    slideShow.addText(50, 'another text', Inches(1), Inches(1), Inches(1), Inches(1))
+    slideShow.save('testOOP.pptx')
+
+
+    """ # import presentation layout as slideShow
+    slideShow = Presentation('16x9.pptx')
 
     # slide layout and constants config
-    slide_layout = prs.slide_layouts[6]
+    slide_layout =  slideShow.slide_layouts[6]
     width = height = Inches(1)
     picHeight = Inches(3)
     picLeft = Inches(5)
@@ -34,10 +75,10 @@ def main():
     ws = wb.active
 
     # counter to iterate over all the rows in the workbook
-    for row in range(8,10):
+    for row in range(8,281):
 
         # this part of the program creates a slide configuration based on what is needed on the slide
-        slide = prs.slides.add_slide(slide_layout)
+        slide = slideShow.slides.add_slide(slide_layout)
         txBox = slide.shapes.add_textbox(Inches(6), Inches(2.5), width, height)
         tf = txBox.text_frame
 
@@ -54,7 +95,7 @@ def main():
             if get_column_letter(col) == wordTextColumn:
 
                 # add a word slide - word is selected from the current workbook cell as wordText
-                slide = prs.slides.add_slide(slide_layout)
+                slide = slideShow.slides.add_slide(slide_layout)
                 wordText = ws.cell(row=row, column=col).value
                 txBox = slide.shapes.add_textbox(Inches(5.5), Inches(2.8), width, height)
                 tf = txBox.text_frame
@@ -79,7 +120,7 @@ def main():
             elif get_column_letter(col) == sentenceSoundColumn:
 
                 # new slide added and sound played same as above, only sentence audio is used this time
-                slide = prs.slides.add_slide(slide_layout)
+                slide = slideShow.slides.add_slide(slide_layout)
                 sentenceSound = ws.cell(row=row, column=col).value
                 
                 sound = slide.shapes.add_movie("sounds\sentences\\" + sentenceSound, Inches(0.5), Inches(0.5), 0, 0)
@@ -107,7 +148,7 @@ def main():
                 slide.shapes.add_picture("images\pictures_learning\\" + sentencePicture, picLeft, Inches(1.5), picHeight)
 
     # presentation is saved.
-    prs.save("bla.pptx")
+    slideShow.save("learning pictures.pptx") """
 
 if __name__ == '__main__':
     main()
