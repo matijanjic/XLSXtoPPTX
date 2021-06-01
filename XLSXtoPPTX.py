@@ -10,7 +10,9 @@ from pptx.util import Inches, Pt
 from lxml import etree
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter
+import PIL
 from PIL import Image
+import io
 
 class SlideShow:
     
@@ -33,22 +35,38 @@ class SlideShow:
         p.font.size = Pt(fontSize)
 
     # add a picture on the slide
-    def addPicture(self, imgFile, left, top):
-        
-        img = Image.open(imgFile)
-        width, height = img.size
+    def addPicture(self, imgFile, left, top, maxSize):
 
-        # center the picture if needed
-        slide_size = (16, 9)
-        self.ss.slide_width, self.ss.slide_height = Inches(slide_size[0]), Inches(slide_size[1])
-        if left == "center" and top == "center":
-            left = Inches(slide_size[0] - (width / img.info['dpi'][0])) / 2
-            top = Inches(slide_size[1] - (height / img.info['dpi'][1])) / 2
-            self.slide.shapes.add_picture(imgFile, left, top)
-            
-        # else position it depending on the left and top variable
+        # open the image
+        img = Image.open(imgFile)
+
+        # depending on the picture orientation, set the longest side to the maxSize argument (in pixels)
+        width, height = img.size
+        ratio = height / width
+        if height > width:
+            height = maxSize
+            width = int(ratio * maxSize)
         else:
-            self.slide.shapes.add_picture(imgFile, Inches(left), Inches(top))
+            width = maxSize
+            height = int(ratio * maxSize)
+
+        # resize the image using the calculations above and save it to img_resized variable
+        img_resized = img.resize([width, height], PIL.Image.ANTIALIAS)
+        
+
+        # using BytesIO to save the resized image to memory
+        with io.BytesIO() as output:
+            img_resized.save(output, img.format)
+
+            # if center is selected as left and top, picture is centered
+            if left == "center" and top == "center":
+                pic = self.slide.shapes.add_picture(output, 0, 0)
+                pic.left = int((self.ss.slide_width - pic.width)/2) 
+                pic.top = int((self.ss.slide_height - pic.height)/2) 
+            
+            # else position it depending on the left and top variable (in inches)
+            else:
+                self.slide.shapes.add_picture(output, Inches(left), Inches(top))
 
     # saves the pptx file
     def save(self, saveFile):
@@ -61,7 +79,7 @@ def main():
     slideShow.addText(50, 'sample text', Inches(1), Inches(1), Inches(1), Inches(1))
     slideShow.addSlide()
     slideShow.addText(50, 'another text', Inches(1), Inches(1), Inches(1), Inches(1))
-    slideShow.addPicture('bird flap wings.jpg', "center", "center", 2)
+    slideShow.addPicture('bird flap wings.jpg', 1, 1, 200)
     slideShow.save('testOOP.pptx')
 
 
