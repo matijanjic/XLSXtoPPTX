@@ -1,3 +1,4 @@
+from lxml import etree
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.enum.text import PP_ALIGN
@@ -19,10 +20,12 @@ class SlideShow:
 
     # adds a text object on the slide
     def addText(self, fontSize, text, width, height, left = 'center', top='center',):
-        if left == 'center' and top == 'center':
+        # if kwargs left and top equal to 'center', text is centered
+        if left == 'center':
             left = self.ss.slide_width / 2
-            top = self.ss.slide_height / 2
             left = left - width / 2
+        if top == 'center':
+            top = self.ss.slide_height / 2
             top = top - height / 2
         txBox = self.slide.shapes.add_textbox(left, top, width, height)
         tf = txBox.text_frame
@@ -54,15 +57,32 @@ class SlideShow:
         with io.BytesIO() as output:
             img_resized.save(output, img.format)
 
-            # if center is selected as left and top, picture is centered
+            # picture can be centered vertically, horizontally or both if so selected with the kwargs
             if left == "center" and top == "center":
                 pic = self.slide.shapes.add_picture(output, 0, 0)
-                pic.left = int((self.ss.slide_width - pic.width)/2) 
-                pic.top = int((self.ss.slide_height - pic.height)/2) 
+                pic.left = Inches(int((self.ss.slide_width - pic.width)/2))
+                pic.top = Inches(int((self.ss.slide_height - pic.height)/2))
+            elif left == 'center' and not top == 'center':
+                pic = self.slide.shapes.add_picture(output, 0, 0)
+                pic.left = Inches(int((self.ss.slide_width - pic.width)/2))
+                pic.top = top
+            elif not left == 'center' and top == 'center':
+                pic = self.slide.shapes.add_picture(output, 0, 0)
+                pic.top = Inches(int((self.ss.slide_height - pic.height)/2))
+                pic.left = left
             
             # else position it depending on the left and top variable (in inches)
             else:
-                self.slide.shapes.add_picture(output, Inches(left), Inches(top))
+                self.slide.shapes.add_picture(output, left, top)
+
+    def addSound(self, soundFile, left, top, width, height):
+
+        sound = self.slide.shapes.add_movie(soundFile, left, top, width, height)
+        # a bit of xml editing using the etree method from the lxml module making sound autoplay possible. 
+        # Solution found at https://github.com/scanny/python-pptx/issues/427. Thanks to iota-pi for the solution!
+        tree = sound._element.getparent().getparent().getnext().getnext()
+        timing = [el for el in tree.iterdescendants() if etree.QName(el).localname == 'cond'][0]
+        timing.set('delay', '0')
 
     # saves the pptx file
     def save(self, saveFile):

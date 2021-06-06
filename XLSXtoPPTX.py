@@ -6,10 +6,9 @@
 # (gTTS) library that read the words and sentences from a csv file and exported them as .mp3's 
 
 
-from lxml import etree
+
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter
-
 from slideshow import *
 
 def main():
