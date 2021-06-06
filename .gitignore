@@ -1,0 +1,32 @@
+.venv/
+ .gitignore
+.vscode/
+16x9.pptx
+XLSXtoPPTX learning text.py
+XLSXtoPPTX task pictures.py
+XLSXtoPPTX task text.py
+__pycache__/
+addPicturesInExcel.py
+anp1.mp3
+bird catch worm.jpg
+bird flap wings.jpg
+bird in sky.jpg
+bla.pptx
+excel/
+finished/
+git
+images/
+learning.xlsx
+ooptest.py
+pptx_examples/
+renameImages.py
+sentences.csv
+sounds.xlsm
+sounds/
+task.xlsx
+test.pptx
+testOOP.pptx
+tts.py
+words.csv
+za dodati/
+~$testOOP.pptx

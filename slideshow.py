@@ -58,31 +58,30 @@ class SlideShow:
             img_resized.save(output, img.format)
 
             # picture can be centered vertically, horizontally or both if so selected with the kwargs
-            if left == "center" and top == "center":
+            if left == 'center' and top == 'center':
                 pic = self.slide.shapes.add_picture(output, 0, 0)
-                pic.left = Inches(int((self.ss.slide_width - pic.width)/2))
-                pic.top = Inches(int((self.ss.slide_height - pic.height)/2))
+                pic.left = int((self.ss.slide_width - pic.width)/2)
+                pic.top = int((self.ss.slide_height - pic.height)/2)
             elif left == 'center' and not top == 'center':
                 pic = self.slide.shapes.add_picture(output, 0, 0)
-                pic.left = Inches(int((self.ss.slide_width - pic.width)/2))
+                pic.left = int((self.ss.slide_width - pic.width)/2)
                 pic.top = top
             elif not left == 'center' and top == 'center':
                 pic = self.slide.shapes.add_picture(output, 0, 0)
-                pic.top = Inches(int((self.ss.slide_height - pic.height)/2))
+                pic.top = int((self.ss.slide_height - pic.height)/2)
                 pic.left = left
-            
             # else position it depending on the left and top variable (in inches)
             else:
                 self.slide.shapes.add_picture(output, left, top)
 
-    def addSound(self, soundFile, left, top, width, height):
-
-        sound = self.slide.shapes.add_movie(soundFile, left, top, width, height)
+    def addSound(self, soundFile):
+        # uses the add_movie method of the pptx module
+        sound = self.slide.shapes.add_movie(soundFile, 0, 0, 0, 0)
         # a bit of xml editing using the etree method from the lxml module making sound autoplay possible. 
         # Solution found at https://github.com/scanny/python-pptx/issues/427. Thanks to iota-pi for the solution!
         tree = sound._element.getparent().getparent().getnext().getnext()
         timing = [el for el in tree.iterdescendants() if etree.QName(el).localname == 'cond'][0]
-        timing.set('delay', '0')
+        timing.set('delay', '5000')
 
     # saves the pptx file
     def save(self, saveFile):
