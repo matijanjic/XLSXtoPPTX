@@ -5,98 +5,34 @@
 # Audio files were generated using another script I made that uses the Google text-to-speech 
 # (gTTS) library that read the words and sentences from a csv file and exported them as .mp3's 
 
-from pptx import Presentation
-from pptx.util import Inches, Pt
+
 from lxml import etree
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter
-import PIL
-from PIL import Image
-import io
 
-class SlideShow:
-    
-    def __init__(self, layoutFile, layoutNumber):
-        self.layoutFile = layoutFile
-        self.layoutNumber = layoutNumber
-        self.ss = Presentation(layoutFile)
-        self.slideLayout = self.ss.slide_layouts[layoutNumber]
-
-    # adds a slide
-    def addSlide(self):
-        self.slide = self.ss.slides.add_slide(self.slideLayout)
-
-    # adds a text object on the slide
-    def addText(self, fontSize, text, left, top, width, height):
-        txBox = self.slide.shapes.add_textbox(left, top, width, height)
-        tf = txBox.text_frame
-        p=tf.add_paragraph()
-        p.text = text
-        p.font.size = Pt(fontSize)
-
-    # add a picture on the slide
-    def addPicture(self, imgFile, left, top, maxSize):
-
-        # open the image
-        img = Image.open(imgFile)
-
-        # depending on the picture orientation, set the longest side to the maxSize argument (in pixels)
-        width, height = img.size
-        ratio = height / width
-        if height > width:
-            height = maxSize
-            width = int(ratio * maxSize)
-        else:
-            width = maxSize
-            height = int(ratio * maxSize)
-
-        # resize the image using the calculations above and save it to img_resized variable
-        img_resized = img.resize([width, height], PIL.Image.ANTIALIAS)
-        
-
-        # using BytesIO to save the resized image to memory
-        with io.BytesIO() as output:
-            img_resized.save(output, img.format)
-
-            # if center is selected as left and top, picture is centered
-            if left == "center" and top == "center":
-                pic = self.slide.shapes.add_picture(output, 0, 0)
-                pic.left = int((self.ss.slide_width - pic.width)/2) 
-                pic.top = int((self.ss.slide_height - pic.height)/2) 
-            
-            # else position it depending on the left and top variable (in inches)
-            else:
-                self.slide.shapes.add_picture(output, Inches(left), Inches(top))
-
-    # saves the pptx file
-    def save(self, saveFile):
-        self.ss.save(saveFile)
+from slideshow import *
 
 def main():
 
     slideShow = SlideShow('16x9.pptx', 6)
     slideShow.addSlide()
-    slideShow.addText(50, 'sample text', Inches(1), Inches(1), Inches(1), Inches(1))
+    slideShow.addText(50, 'sample text', Inches(4), Inches(1))
     slideShow.addSlide()
-    slideShow.addText(50, 'another text', Inches(1), Inches(1), Inches(1), Inches(1))
-    slideShow.addPicture('bird flap wings.jpg', 1, 1, 200)
+    slideShow.addText(50, 'another text', Inches(4), Inches(1))
+    slideShow.addPicture('bird flap wings.jpg', 200)
     slideShow.save('testOOP.pptx')
 
 
-    """ # import presentation layout as slideShow
-    slideShow = Presentation('16x9.pptx')
-
-    # slide layout and constants config
-    slide_layout =  slideShow.slide_layouts[6]
-    width = height = Inches(1)
-    picHeight = Inches(3)
-    picLeft = Inches(5)
-
+    """ 
     # column letter assigment as in loaded excel table
     wordTextColumn = 'F'
     wordSoundColumn = 'G'
     sentenceSoundColumn = 'I'
     sentencePictureColumn = 'J'
+    rowStart = 0
+    rowEnd = 0
+    columnStart = 0
+    columnEnd = 0
 
     # load existing workbook file as data only and set it as active
     wb = load_workbook('excel\spreadsheet_gorilla_learning_pictures.xlsx', data_only=True)
