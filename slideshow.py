@@ -19,14 +19,24 @@ class SlideShow:
         self.slide = self.ss.slides.add_slide(self.slideLayout)
 
     # adds a text object on the slide
-    def addText(self, fontSize, text, width, height, left = 'center', top='center',):
-        # if kwargs left and top equal to 'center', text is centered
+    def addText(self, fontSize, text, width, height, left = 'center', top='center'):
+        # convert width and height to EMUs
+        width = Inches(width)
+        height = Inches(height)
+
+        # if left and top kwargs not 'center', convert them to EMUs
+        if not left == 'center':
+            left = Inches(left)
+        if not top == 'center':
+            top = Inches(top)
+
+        # if kwargs left and top equal to 'center', text is centered so the user doesn't have to convert when calling the method
         if left == 'center':
             left = self.ss.slide_width / 2
-            left = left - width / 2
+            left = left - (width / 2)
         if top == 'center':
             top = self.ss.slide_height / 2
-            top = top - height / 2
+            top = top - (height / 2)
         txBox = self.slide.shapes.add_textbox(left, top, width, height)
         tf = txBox.text_frame
         txBox.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
@@ -34,8 +44,13 @@ class SlideShow:
         p.text = text
         p.font.size = Pt(fontSize)
 
-    # add a picture on the slide
+    # add a picture on the slide, maxSize is defined in pixels
     def addPicture(self, imgFile, maxSize, left = 'center', top = 'center'):
+        # if left and top kwargs not 'center', convert them to EMUs
+        if not left == 'center':
+            left = Inches(left)
+        if not top == 'center':
+            top = Inches(top)
 
         # open the image
         img = Image.open(imgFile)
@@ -81,7 +96,7 @@ class SlideShow:
         # Solution found at https://github.com/scanny/python-pptx/issues/427. Thanks to iota-pi for the solution!
         tree = sound._element.getparent().getparent().getnext().getnext()
         timing = [el for el in tree.iterdescendants() if etree.QName(el).localname == 'cond'][0]
-        timing.set('delay', '5000')
+        timing.set('delay', '0')
 
     # saves the pptx file
     def save(self, saveFile):

@@ -15,11 +15,11 @@ def main():
 
     slideShow = SlideShow('16x9.pptx', 6)
     slideShow.addSlide()
-    slideShow.addText(50, 'sample text', Inches(4), Inches(1))
+    slideShow.addText(50, 'sample text', 4, 1)
     slideShow.addSlide()
-    slideShow.addText(50, 'another text', Inches(4), Inches(1))
+    slideShow.addText(50, 'another text', 4, 1)
     slideShow.addPicture('bird flap wings.jpg', 200)
-    slideShow.addSound('anp1.mp3', 0, 0, 0, 0)
+    slideShow.addSound('anp1.mp3')
     slideShow.save('testOOP.pptx')
 
 
