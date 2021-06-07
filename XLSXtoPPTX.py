@@ -10,25 +10,58 @@
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter
 from slideshow import *
+from collections import defaultdict
 
+# returns a dictionary of lists where each letter has a list of values from that column
+# in the worksheet
+def getDictFromXslx(xlsxFile, rowStart, rowEnd, colStart, colEnd, **kwargs):
+
+    wb = load_workbook(xlsxFile, data_only=True)
+    ws = wb.active
+    
+    wsDict = defaultdict(list)
+    for row in range(rowStart, rowEnd):
+        c = []
+        for column in range(colStart, colEnd):
+            colLetter = get_column_letter(column)    
+            if colLetter in kwargs.values():
+                    wsDict[colLetter].append(ws.cell(row=row, column=column).value)
+    return wsDict
+
+        
 def main():
+    xlsxFile = 'excel\spreadsheet_gorilla_learning_pictures.xlsx'
+    wordTextCol = 'F'
+    wordSoundCol = 'G'
+    sentenceSoundCol = 'I'
+    sentencePictureCol = 'J'
+    rowStart = 8
+    rowEnd = 15
+    colStart = 6
+    colEnd = 11
 
     slideShow = SlideShow('16x9.pptx', 6)
-    slideShow.addSlide()
-    slideShow.addText(50, 'sample text', 4, 1)
-    slideShow.addSlide()
-    slideShow.addText(50, 'another text', 4, 1)
-    slideShow.addPicture('bird flap wings.jpg', 200)
-    slideShow.addSound('anp1.mp3')
-    slideShow.save('testOOP.pptx')
-
+   
+    xlsxDict = getDictFromXslx(xlsxFile, rowStart, rowEnd + 1, colStart, colEnd, wordTextCol = 'F', wordSoundCol = 'G', sentenceSoundCol = 'I', sentencePictureCol = 'J')
+    
+    for i in range(rowEnd - rowStart):
+        print(i)
+        slideShow.addSlide()
+        slideShow.addText(80,'X', 4, 1)
+        slideShow.addSlide()
+        slideShow.addText(44, xlsxDict[wordTextCol][i], 4, 1)
+        slideShow.addSound("sounds\words\\" + xlsxDict[wordSoundCol][i])
+        slideShow.addSlide()
+        slideShow.addPicture("images\pictures_learning\\" + xlsxDict[sentencePictureCol][i], 400)
+        slideShow.addSound("sounds\sentences\\" + xlsxDict[sentenceSoundCol][i])
+    slideShow.save('testOOP2.pptx')
 
     """ 
     # column letter assigment as in loaded excel table
-    wordTextColumn = 'F'
-    wordSoundColumn = 'G'
-    sentenceSoundColumn = 'I'
-    sentencePictureColumn = 'J'
+    wordTextCol = 'F'
+    wordSoundCol = 'G'
+    sentenceSoundCol = 'I'
+    sentencePictureCol = 'J'
     rowStart = 0
     rowEnd = 0
     columnStart = 0

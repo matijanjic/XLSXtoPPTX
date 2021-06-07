@@ -39,8 +39,8 @@ class SlideShow:
             top = top - (height / 2)
         txBox = self.slide.shapes.add_textbox(left, top, width, height)
         tf = txBox.text_frame
-        txBox.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
         p=tf.add_paragraph()
+        tf.paragraphs[0].alignment = PP_ALIGN.CENTER
         p.text = text
         p.font.size = Pt(fontSize)
 
@@ -57,13 +57,15 @@ class SlideShow:
 
         # depending on the picture orientation, set the longest side to the maxSize argument (in pixels)
         width, height = img.size
-        ratio = height / width
+        
         if height > width:
+            ratio = width / height
             height = maxSize
-            width = int(ratio * maxSize)
+            width = int(maxSize * ratio)
         else:
+            ratio = height / width
             width = maxSize
-            height = int(ratio * maxSize)
+            height = int(maxSize * ratio)
 
         # resize the image using the calculations above and save it to img_resized variable
         img_resized = img.resize([width, height], PIL.Image.ANTIALIAS)
