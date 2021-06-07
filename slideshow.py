@@ -6,20 +6,21 @@ from PIL import Image
 import PIL
 import io
 
+
 class SlideShow:
-    
+
     def __init__(self, layoutFile, layoutNumber):
         self.layoutFile = layoutFile
         self.layoutNumber = layoutNumber
         self.ss = Presentation(layoutFile)
         self.slideLayout = self.ss.slide_layouts[layoutNumber]
 
-    # adds a slide
+    # adds an empty slide
     def addSlide(self):
         self.slide = self.ss.slides.add_slide(self.slideLayout)
 
     # adds a text object on the slide
-    def addText(self, fontSize, text, width, height, left = 'center', top='center'):
+    def addText(self, fontSize, text, width, height, left='center', top='center'):
         # convert width and height to EMUs
         width = Inches(width)
         height = Inches(height)
@@ -39,14 +40,16 @@ class SlideShow:
             top = top - (height / 2)
         txBox = self.slide.shapes.add_textbox(left, top, width, height)
         tf = txBox.text_frame
-        p=tf.add_paragraph()
-        tf.paragraphs[0].alignment = PP_ALIGN.CENTER
+        p = tf.add_paragraph()
+        p.alignment = PP_ALIGN.CENTER
         p.text = text
+
         p.font.size = Pt(fontSize)
 
-    # add a picture on the slide, maxSize is defined in pixels
-    def addPicture(self, imgFile, maxSize, left = 'center', top = 'center'):
-        # if left and top kwargs not 'center', convert them to EMUs
+    # add a picture on the slide, maxSize is defined in pixels. Default is centered, but if needed, the picture
+    # can be moved anywhere, just need to specify the left and/or top variables in inches
+    def addPicture(self, imgFile, maxSize, left='center', top='center'):
+        # if left and/or top kwargs not 'center', convert them to EMUs
         if not left == 'center':
             left = Inches(left)
         if not top == 'center':
@@ -57,7 +60,7 @@ class SlideShow:
 
         # depending on the picture orientation, set the longest side to the maxSize argument (in pixels)
         width, height = img.size
-        
+
         if height > width:
             ratio = width / height
             height = maxSize
@@ -69,7 +72,7 @@ class SlideShow:
 
         # resize the image using the calculations above and save it to img_resized variable
         img_resized = img.resize([width, height], PIL.Image.ANTIALIAS)
-        
+
         # using BytesIO to save the resized image to memory
         with io.BytesIO() as output:
             img_resized.save(output, img.format)
@@ -94,10 +97,12 @@ class SlideShow:
     def addSound(self, soundFile):
         # uses the add_movie method of the pptx module
         sound = self.slide.shapes.add_movie(soundFile, 0, 0, 0, 0)
-        # a bit of xml editing using the etree method from the lxml module making sound autoplay possible. 
+        
+        # a bit of xml editing using the etree method from the lxml module making sound autoplay possible.
         # Solution found at https://github.com/scanny/python-pptx/issues/427. Thanks to iota-pi for the solution!
         tree = sound._element.getparent().getparent().getnext().getnext()
-        timing = [el for el in tree.iterdescendants() if etree.QName(el).localname == 'cond'][0]
+        timing = [el for el in tree.iterdescendants(
+        ) if etree.QName(el).localname == 'cond'][0]
         timing.set('delay', '0')
 
     # saves the pptx file

@@ -1,151 +1,75 @@
 
-#  A script that takes an existing excel file, reads the required columns that hold the info 
+#  A script that takes an existing excel file, reads the required columns that hold the info
 # (word, sentence, word audio, sentence audio, sentence picture etc.) and arranges it all into a
 # pptx presentation. The use case is pretty specific, my wife needed it for her phd experiment.
-# Audio files were generated using another script I made that uses the Google text-to-speech 
-# (gTTS) library that read the words and sentences from a csv file and exported them as .mp3's 
+# Audio files were generated using another script I made that uses the Google text-to-speech
+# (gTTS) library that read the words and sentences from a csv file and exported them as .mp3's
 
-
-
-from openpyxl import Workbook, load_workbook
+from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
-from slideshow import *
 from collections import defaultdict
+from slideshow import *
 
-# returns a dictionary of lists where each letter has a list of values from that column
+# returns a dictionary of lists where each letter key has a value that is a list of values from that column
 # in the worksheet
-def getDictFromXslx(xlsxFile, rowStart, rowEnd, colStart, colEnd, **kwargs):
+def getDictFromXlsx(xlsxFile, rowStart, rowEnd, colStart, colEnd, **kwargs):
 
     wb = load_workbook(xlsxFile, data_only=True)
     ws = wb.active
-    
+
+    # goes through the workbook and returns a dictionary
     wsDict = defaultdict(list)
     for row in range(rowStart, rowEnd):
         c = []
         for column in range(colStart, colEnd):
-            colLetter = get_column_letter(column)    
+            colLetter = get_column_letter(column)
             if colLetter in kwargs.values():
-                    wsDict[colLetter].append(ws.cell(row=row, column=column).value)
+                wsDict[colLetter].append(ws.cell(row=row, column=column).value)
     return wsDict
 
-        
+
 def main():
+    # some constants declared here
     xlsxFile = 'excel\spreadsheet_gorilla_learning_pictures.xlsx'
+    wordSoundFolder = 'sounds\words\\'
+    sentenceSoundFolder = 'sounds\sentences\\'
+    pictureFolder = 'images\pictures_learning\\'
+
+    # these could be changed to what ever fits your needs
     wordTextCol = 'F'
     wordSoundCol = 'G'
     sentenceSoundCol = 'I'
     sentencePictureCol = 'J'
+
+    # starting and ending points in the workbook
     rowStart = 8
-    rowEnd = 15
+    rowEnd = 282
     colStart = 6
     colEnd = 11
 
+    # create a new instance of the SlideShow class that takes the 
+    # layout file (in this case a 16x9 ratio file) and the slide layout (further explained in the 
+    # python-pptx documentation https://python-pptx.readthedocs.io/en/latest/user/slides.html)
     slideShow = SlideShow('16x9.pptx', 6)
-   
-    xlsxDict = getDictFromXslx(xlsxFile, rowStart, rowEnd + 1, colStart, colEnd, wordTextCol = 'F', wordSoundCol = 'G', sentenceSoundCol = 'I', sentencePictureCol = 'J')
-    
-    for i in range(rowEnd - rowStart):
-        print(i)
+
+    # use the getDictFromXlsx function that returns a filled out dictionary where the keys are the column letters
+    # and the values are lists that contain the data in those columns
+    xlsxDict = getDictFromXlsx(xlsxFile, rowStart, rowEnd + 1, colStart, colEnd,
+                               wordTextCol='F', wordSoundCol='G', sentenceSoundCol='I', sentencePictureCol='J')
+
+    # for each row create a following slide layout:
+    for i in range(rowEnd - rowStart + 1):
         slideShow.addSlide()
-        slideShow.addText(80,'X', 4, 1)
+        slideShow.addText(80, 'X', 4, 1)
         slideShow.addSlide()
         slideShow.addText(44, xlsxDict[wordTextCol][i], 4, 1)
-        slideShow.addSound("sounds\words\\" + xlsxDict[wordSoundCol][i])
+        slideShow.addSound(wordSoundFolder + xlsxDict[wordSoundCol][i])
         slideShow.addSlide()
-        slideShow.addPicture("images\pictures_learning\\" + xlsxDict[sentencePictureCol][i], 400)
-        slideShow.addSound("sounds\sentences\\" + xlsxDict[sentenceSoundCol][i])
+        slideShow.addPicture(pictureFolder + xlsxDict[sentencePictureCol][i], 400)
+        slideShow.addSound(sentenceSoundFolder + xlsxDict[sentenceSoundCol][i])
+    # and save it
     slideShow.save('testOOP2.pptx')
 
-    """ 
-    # column letter assigment as in loaded excel table
-    wordTextCol = 'F'
-    wordSoundCol = 'G'
-    sentenceSoundCol = 'I'
-    sentencePictureCol = 'J'
-    rowStart = 0
-    rowEnd = 0
-    columnStart = 0
-    columnEnd = 0
-
-    # load existing workbook file as data only and set it as active
-    wb = load_workbook('excel\spreadsheet_gorilla_learning_pictures.xlsx', data_only=True)
-    ws = wb.active
-
-    # counter to iterate over all the rows in the workbook
-    for row in range(8,281):
-
-        # this part of the program creates a slide configuration based on what is needed on the slide
-        slide = slideShow.slides.add_slide(slide_layout)
-        txBox = slide.shapes.add_textbox(Inches(6), Inches(2.5), width, height)
-        tf = txBox.text_frame
-
-        # add large letter X in the middle for experiment fixation
-        p = tf.add_paragraph()
-        p.text = "X"
-        p.font.size = Pt(80)
-        p.font.name = 'Calibri light'
-        
-        # iterate over the columns
-        for col in range(6,11):
-
-            # an if-else checking the column letter using the get_column_letter() method. Case would be better suited.
-            if get_column_letter(col) == wordTextColumn:
-
-                # add a word slide - word is selected from the current workbook cell as wordText
-                slide = slideShow.slides.add_slide(slide_layout)
-                wordText = ws.cell(row=row, column=col).value
-                txBox = slide.shapes.add_textbox(Inches(5.5), Inches(2.8), width, height)
-                tf = txBox.text_frame
-
-                p=tf.add_paragraph()
-                p.text = wordText.capitalize()
-                p.font.size = Pt(44)
-                p.font.name = 'Calibri light'
-
-            elif get_column_letter(col) == wordSoundColumn:
-
-                # add sound to the slide above using the filenames given in the workbook at the word sound column.
-                wordSound = ws.cell(row=row, column=col).value
-                sound = slide.shapes.add_movie("sounds\words\\" + wordSound, Inches(0.5), Inches(0.5), 0, 0)
-
-                # a bit of xml editing using the etree method from the lxml module making sound autoplay possible. 
-                # Solution found at https://github.com/scanny/python-pptx/issues/427. Thanks to iota-pi for the solution!
-                tree = sound._element.getparent().getparent().getnext().getnext()
-                timing = [el for el in tree.iterdescendants() if etree.QName(el).localname == 'cond'][0]
-                timing.set('delay', '0')
-
-            elif get_column_letter(col) == sentenceSoundColumn:
-
-                # new slide added and sound played same as above, only sentence audio is used this time
-                slide = slideShow.slides.add_slide(slide_layout)
-                sentenceSound = ws.cell(row=row, column=col).value
-                
-                sound = slide.shapes.add_movie("sounds\sentences\\" + sentenceSound, Inches(0.5), Inches(0.5), 0, 0)
-                tree = sound._element.getparent().getparent().getnext().getnext()
-                timing = [el for el in tree.iterdescendants() if etree.QName(el).localname == 'cond'][0]
-                timing.set('delay', '0')
-
-            elif get_column_letter(col) == sentencePictureColumn:
-
-                # adding a picture on the slide above. Filename is again provided by the workbook
-                sentencePicture = ws.cell(row=row, column=col).value
-
-                # use of the PIL library, opening each picture to check the orientation using a simple if else statement and
-                # adjusting the picture origin on the x axis (picLeft, 0 is completely left) and the picture height - horizontal images
-                # are given more height then the portrait ones so it fills up  the screen more efficiently and are moved more to the left.
-                img = Image.open("images\pictures_learning\\" + sentencePicture)
-                width, height = img.size
-                
-                if height >= width:
-                    picHeight = Inches(3)
-                    picLeft = Inches(5)
-                else:
-                    picHeight = Inches(6)
-                    picLeft = Inches(3.2)
-                slide.shapes.add_picture("images\pictures_learning\\" + sentencePicture, picLeft, Inches(1.5), picHeight)
-
-    # presentation is saved.
-    slideShow.save("learning pictures.pptx") """
 
 if __name__ == '__main__':
     main()
