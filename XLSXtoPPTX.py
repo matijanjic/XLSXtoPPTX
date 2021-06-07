@@ -57,6 +57,8 @@ def main():
     xlsxDict = getDictFromXlsx(xlsxFile, rowStart, rowEnd + 1, colStart, colEnd,
                                wordTextCol='F', wordSoundCol='G', sentenceSoundCol='I', sentencePictureCol='J')
 
+    # -- MAIN SLIDE LAYOUT --#
+
     # for each row create a following slide layout:
     for i in range(rowEnd - rowStart + 1):
         slideShow.addSlide()
@@ -68,7 +70,7 @@ def main():
         slideShow.addPicture(pictureFolder + xlsxDict[sentencePictureCol][i], 400)
         slideShow.addSound(sentenceSoundFolder + xlsxDict[sentenceSoundCol][i])
     # and save it
-    slideShow.save('testOOP2.pptx')
+    slideShow.save('test.pptx')
 
 
 if __name__ == '__main__':
