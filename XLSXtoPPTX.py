@@ -35,7 +35,7 @@ def main():
     sentenceSoundFolder = 'sounds\sentences\\'
     pictureFolder = 'images\pictures_learning\\'
 
-    # these could be changed to what ever fits your needs
+    # these could be changed to what ever fits your needs, but are column letters that hold the data for the powerpoint
     wordTextCol = 'F'
     wordSoundCol = 'G'
     sentenceSoundCol = 'I'
