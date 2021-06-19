@@ -43,7 +43,6 @@ class SlideShow:
         p = tf.add_paragraph()
         p.alignment = PP_ALIGN.CENTER
         p.text = text
-
         p.font.size = Pt(fontSize)
 
     # add a picture on the slide, maxSize is defined in pixels. Default is centered, but if needed, the picture

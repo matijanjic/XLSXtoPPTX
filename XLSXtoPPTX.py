@@ -40,6 +40,7 @@ def main():
     sentenceSoundCol = 'I'
     sentencePictureCol = 'J'
     colList = ['F', 'G', 'I', 'J']
+    
     # starting and ending points in the workbook
     rowStart = 8
     rowEnd = 25
