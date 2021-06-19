@@ -20,7 +20,6 @@ def getDictFromXlsx(xlsxFile, rowStart, rowEnd, colStart, colEnd, **kwargs):
     # goes through the workbook and returns a dictionary
     wsDict = defaultdict(list)
     for row in range(rowStart, rowEnd):
-        c = []
         for column in range(colStart, colEnd):
             colLetter = get_column_letter(column)
             if colLetter in kwargs.values():
@@ -30,7 +29,7 @@ def getDictFromXlsx(xlsxFile, rowStart, rowEnd, colStart, colEnd, **kwargs):
 
 def main():
     # some constants declared here
-    xlsxFile = 'excel\spreadsheet_gorilla_learning_pictures.xlsx'
+    xlsxFile = 'excel\spreadsheet_gorilla_learning_pictures_-all.xlsx'
     wordSoundFolder = 'sounds\words\\'
     sentenceSoundFolder = 'sounds\sentences\\'
     pictureFolder = 'images\pictures_learning\\'
@@ -43,7 +42,7 @@ def main():
 
     # starting and ending points in the workbook
     rowStart = 8
-    rowEnd = 282
+    rowEnd = 25
     colStart = 6
     colEnd = 11
 
