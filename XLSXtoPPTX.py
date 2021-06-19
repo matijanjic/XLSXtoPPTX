@@ -12,7 +12,7 @@ from slideshow import *
 
 # returns a dictionary of lists where each letter key has a value that is a list of values from that column
 # in the worksheet
-def getDictFromXlsx(xlsxFile, rowStart, rowEnd, colStart, colEnd, **kwargs):
+def getDictFromXlsx(xlsxFile, rowStart, rowEnd, colStart, colEnd, colList):
 
     wb = load_workbook(xlsxFile, data_only=True)
     ws = wb.active
@@ -22,7 +22,7 @@ def getDictFromXlsx(xlsxFile, rowStart, rowEnd, colStart, colEnd, **kwargs):
     for row in range(rowStart, rowEnd):
         for column in range(colStart, colEnd):
             colLetter = get_column_letter(column)
-            if colLetter in kwargs.values():
+            if colLetter in colList:
                 wsDict[colLetter].append(ws.cell(row=row, column=column).value)
     return wsDict
 
@@ -39,7 +39,7 @@ def main():
     wordSoundCol = 'G'
     sentenceSoundCol = 'I'
     sentencePictureCol = 'J'
-
+    colList = ['F', 'G', 'I', 'J']
     # starting and ending points in the workbook
     rowStart = 8
     rowEnd = 25
@@ -53,8 +53,7 @@ def main():
 
     # use the getDictFromXlsx function that returns a filled out dictionary where the keys are the column letters
     # and the values are lists that contain the data in those columns
-    xlsxDict = getDictFromXlsx(xlsxFile, rowStart, rowEnd + 1, colStart, colEnd,
-                               wordTextCol='F', wordSoundCol='G', sentenceSoundCol='I', sentencePictureCol='J')
+    xlsxDict = getDictFromXlsx(xlsxFile, rowStart, rowEnd + 1, colStart, colEnd, colList)
 
     # -- MAIN SLIDE LAYOUT --#
 
