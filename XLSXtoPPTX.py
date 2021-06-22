@@ -43,10 +43,16 @@ def main():
     colList = ['F', 'G', 'I', 'J']
     
     # starting and ending points in the workbook
-    rowStart = 8
+    rowStart = 9
     rowEnd = 25
     colStart = 6
     colEnd = 11
+
+    """ if rowStart == "startRow":
+        rowStart = 1
+    if rowEnd == "endRow":
+        rowEnd == """
+        
 
     # create a new instance of the SlideShow class that takes the width and the height in inches
     # and the and the slide layout (further explained in the python-pptx documentation 
@@ -71,7 +77,7 @@ def main():
         slideShow.addPicture(pictureFolder + xlsxDict[sentencePictureCol][i], 400)
         slideShow.addSound(sentenceSoundFolder + xlsxDict[sentenceSoundCol][i])
     # and save it
-    slideShow.save('test2.pptx')
+    slideShow.save('test.pptx')
 
 
 if __name__ == '__main__':
