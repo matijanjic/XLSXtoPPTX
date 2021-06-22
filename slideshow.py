@@ -25,9 +25,13 @@ class SlideShow:
 
     # adds a text object on the slide
     def addText(self, fontSize, text, width, height, left='center', top='center'):
+        if not isinstance(text, str):
+            print("addText function requires a string, entered value is " + str(type(text)))
+            exit(1)
         # convert width and height to EMUs
         width = Inches(width)
         height = Inches(height)
+        
 
         # if left and top kwargs not 'center', convert them to EMUs
         if not left == 'center':
