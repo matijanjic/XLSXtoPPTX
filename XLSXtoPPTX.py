@@ -47,10 +47,11 @@ def main():
     colStart = 6
     colEnd = 11
 
-    # create a new instance of the SlideShow class that takes the 
-    # layout file (in this case a 16x9 ratio file) and the slide layout (further explained in the 
-    # python-pptx documentation https://python-pptx.readthedocs.io/en/latest/user/slides.html)
-    slideShow = SlideShow('16x9.pptx', 6)
+    # create a new instance of the SlideShow class that takes the width and the height in inches
+    # and the and the slide layout (further explained in the python-pptx documentation 
+    # https://python-pptx.readthedocs.io/en/latest/user/slides.html)
+    # e.g. SlideShow(16, 9, 6) creates a 16x9 presentation file with a blank slide template (layout number 6)
+    slideShow = SlideShow(16, 9, 6)
 
     # use the getDictFromXlsx function that returns a filled out dictionary where the keys are the column letters
     # and the values are lists that contain the data in those columns
@@ -69,7 +70,7 @@ def main():
         slideShow.addPicture(pictureFolder + xlsxDict[sentencePictureCol][i], 400)
         slideShow.addSound(sentenceSoundFolder + xlsxDict[sentenceSoundCol][i])
     # and save it
-    slideShow.save('test.pptx')
+    slideShow.save('test2.pptx')
 
 
 if __name__ == '__main__':
