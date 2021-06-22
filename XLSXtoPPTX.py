@@ -39,6 +39,7 @@ def main():
     wordSoundCol = 'G'
     sentenceSoundCol = 'I'
     sentencePictureCol = 'J'
+    # list of all the columns so they can be searched more easily. If the number of columns were bigger, it would pay off to automate it
     colList = ['F', 'G', 'I', 'J']
     
     # starting and ending points in the workbook
