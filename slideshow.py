@@ -9,11 +9,15 @@ import io
 
 class SlideShow:
 
-    def __init__(self, layoutFile, layoutNumber):
-        self.layoutFile = layoutFile
+    def __init__(self, width, height, layoutNumber):
+        
+        self.height = height
+        self.width = width
         self.layoutNumber = layoutNumber
-        self.ss = Presentation(layoutFile)
+        self.ss = Presentation()
         self.slideLayout = self.ss.slide_layouts[layoutNumber]
+        self.ss.slide_width = Inches(self.width)
+        self.ss.slide_height = Inches(self.height)
 
     # adds an empty slide
     def addSlide(self):
