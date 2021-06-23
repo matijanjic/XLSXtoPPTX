@@ -11,59 +11,61 @@ from collections import defaultdict
 from slideshow import *
 
 # returns a dictionary of lists where each letter key has a value that is a list of values from that column
-# in the worksheet
-def getDictFromXlsx(xlsxFile, rowStart, rowEnd, colStart, colEnd, colList):
+# in the worksheet. There are four kwargs: rowStart, rowEnd, colStart and colEnd which are by default set to 
+# "auto", which means the whole table will be considered. Might be problematic when there are gaps in the columns
+# or rows, so I'd suggest telling the function explicitly which column and rows are starting and ending ones. 
+def getDictFromXlsx(xlsxFile, colList, rowStart = "auto", rowEnd = "auto", colStart = "auto", colEnd = "auto"):
 
     wb = load_workbook(xlsxFile, data_only=True)
     ws = wb.active
 
-    # checks the whole sheet
-    for rows in ws.rows:
-        for cell in rows:
-            # stops when it finds a non empty cell and asigns that column letter to the firstColumnLetter variable
-            if cell.value != None:
-                firstColumnLetter = cell.column_letter
-                firstColumn = cell.column
+    # if any of the function inputs is requiring the calculation of the start or end points for columns
+    # and rows, then execute the code below.
+    if rowStart == "auto" or rowEnd == "auto" or colStart == "auto" or colEnd == "auto":
+        # checks the whole sheet
+        for rows in ws.rows:
+            for cell in rows:
+                # stops when it finds a non empty cell and asigns that column letter to the firstColumnLetter variable
+                if cell.value != None:
+                    firstColumnLetter = cell.column_letter
+                    firstColumn = cell.column
+                    break
+        
+        # goes through the first column with content and works out first and last row that is not empty
+        column = ws[firstColumnLetter]
+        cellEmpty = True
+        for cell in column:
+            if cell.value != None and cell.row == 1:
+                firstRow = 1
+                cellEmpty = False
+            elif cell.value != None and cellEmpty == True:
+                firstRow = cell.row
+                cellEmpty = False
+            elif cell.value == None and cellEmpty == False:
+                lastRow = cell.row - 1
                 break
-                
+        # goes through the first non-empty row and finds the last column not empty
+        row = ws[firstRow]
+        cellEmpty = True
+        for cell in row:
+            if cell.column_letter > firstColumnLetter and cell.value == None:
+                lastColumn = cell.column - 1
+                break
+        if rowStart == "auto":
+            rowStart = firstRow
+        if rowEnd == "auto":
+            rowEnd = lastRow
+        if colStart == "auto":
+            colStart = firstColumn
+        if colEnd == "auto":
+            colEnd = lastColumn    
         
         
-    # goes through the first column with content and works out first and last row that is not empty
-    column = ws[firstColumnLetter]
-    cellEmpty = True
-    for cell in column:
-        if cell.value != None and cell.row == 1:
-            firstRow = 1
-            break
-        elif cell.value != None and cellEmpty == True:
-            firstRow = cell.row
-            cellEmpty = False
-        elif cell.value == None and cellEmpty == False:
-            lastRow = cell.row - 1
-            break
-    row = ws[firstRow]
-    cellEmpty = True
-    for cell in row:
-        if cell.column_letter > firstColumnLetter and cell.value == None:
-            lastColumn = cell.column - 1
-            break
-        
-
-    print(row)
-    print(f"first row: {firstRow}")
-    print(f"last row: {lastRow}")
-    print(f"first column: {firstColumn}")
-    print(f"last column: {lastColumn}")
-
-
-            
-            
-
 
     # goes through the workbook and returns a dictionary with the values and column letters
     wsDict = defaultdict(list)
-    for row in range(rowStart, rowEnd):
-        for column in range(colStart, colEnd):
+    for row in range(rowStart, rowEnd + 1):
+        for column in range(colStart, colEnd + 1):
             colLetter = get_column_letter(column)
             if colLetter in colList:
                 wsDict[colLetter].append(ws.cell(row=row, column=column).value)
@@ -85,18 +87,6 @@ def main():
     # list of all the columns so they can be searched more easily. If the number of columns were bigger, it would pay off to automate it
     colList = ['F', 'G', 'I', 'J']
     
-    # starting and ending points in the workbook
-    rowStart = 9
-    rowEnd = 25
-    colStart = 6
-    colEnd = 11
-
-    """ if rowStart == "startRow":
-        rowStart = 1
-    if rowEnd == "endRow":
-        rowEnd ==  """
-        
-
     # create a new instance of the SlideShow class that takes the width and the height in inches
     # and the and the slide layout (further explained in the python-pptx documentation 
     # https://python-pptx.readthedocs.io/en/latest/user/slides.html)
@@ -104,13 +94,15 @@ def main():
     slideShow = SlideShow(16, 9, 6)
 
     # use the getDictFromXlsx function that returns a filled out dictionary where the keys are the column letters
-    # and the values are lists that contain the data in those columns
-    xlsxDict = getDictFromXlsx(xlsxFile, rowStart, rowEnd + 1, colStart, colEnd, colList)
-
+    # and the values are lists that contain the data in those columns. 
+    xlsxDict = getDictFromXlsx(xlsxFile, colList)
+    numberOfRows = len(list(xlsxDict.values())[0])
+    print(numberOfRows)
     # -- MAIN SLIDE LAYOUT --#
 
     # for each row create a following slide layout:
-    for i in range(rowEnd - rowStart + 1):
+    for i in range(numberOfRows):
+        print(i)
         slideShow.addSlide()
         slideShow.addText(80, 'X', 4, 1)
         slideShow.addSlide()
