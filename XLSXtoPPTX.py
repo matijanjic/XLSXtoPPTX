@@ -17,7 +17,50 @@ def getDictFromXlsx(xlsxFile, rowStart, rowEnd, colStart, colEnd, colList):
     wb = load_workbook(xlsxFile, data_only=True)
     ws = wb.active
 
-    # goes through the workbook and returns a dictionary
+    # checks the whole sheet
+    for rows in ws.rows:
+        for cell in rows:
+            # stops when it finds a non empty cell and asigns that column letter to the firstColumnLetter variable
+            if cell.value != None:
+                firstColumnLetter = cell.column_letter
+                firstColumn = cell.column
+                break
+                
+        
+        
+    # goes through the first column with content and works out first and last row that is not empty
+    column = ws[firstColumnLetter]
+    cellEmpty = True
+    for cell in column:
+        if cell.value != None and cell.row == 1:
+            firstRow = 1
+            break
+        elif cell.value != None and cellEmpty == True:
+            firstRow = cell.row
+            cellEmpty = False
+        elif cell.value == None and cellEmpty == False:
+            lastRow = cell.row - 1
+            break
+    row = ws[firstRow]
+    cellEmpty = True
+    for cell in row:
+        if cell.column_letter > firstColumnLetter and cell.value == None:
+            lastColumn = cell.column - 1
+            break
+        
+
+    print(row)
+    print(f"first row: {firstRow}")
+    print(f"last row: {lastRow}")
+    print(f"first column: {firstColumn}")
+    print(f"last column: {lastColumn}")
+
+
+            
+            
+
+
+    # goes through the workbook and returns a dictionary with the values and column letters
     wsDict = defaultdict(list)
     for row in range(rowStart, rowEnd):
         for column in range(colStart, colEnd):
@@ -51,7 +94,7 @@ def main():
     """ if rowStart == "startRow":
         rowStart = 1
     if rowEnd == "endRow":
-        rowEnd == """
+        rowEnd ==  """
         
 
     # create a new instance of the SlideShow class that takes the width and the height in inches
